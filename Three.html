@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" content="width=device-width, initial-scale=1.0" />
+    <table></table>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="webgl"></div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/OBJLoader.js"></script>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
+        var textureLoader = new THREE.TextureLoader();
+        var objLoader = new THREE.OBJLoader();
+
+        objLoader.load("cabbage.obj", (object) => {
+            scene.add(object);
+        });
+
+        renderer.setClearColor(0x87CEEB);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+
+        var ctrl = new THREE.OrbitControls(camera, renderer.domElement);
+        ctrl.update();
+
+        /*
+        var axes = new THREE.AxesHelper(10);
+        scene.add(axes);
+        */
+
+        var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.7);
+        scene.add(ambientLight);
+
+        var floorGeometry = new THREE.PlaneGeometry(100, 100);
+        var floorMaterial = new THREE.MeshPhongMaterial({color:0xffffff, side:THREE.DoubleSide, map: textureLoader.load("https://p2.ssl.qhimgs1.com/t0442a1c1b35a01590c.jpg")});
+        var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        floor.position.set(0, -1, 0);
+        floor.rotation.x = -Math.PI / 2;
+        floor.receiveShadow = true;
+        scene.add(floor)
+
+
+        var spotLight = new THREE.SpotLight(0xFFFFFF, 0.4);
+        spotLight.position.set(0, 2, 5);
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        /*
+        var boxGeometry = new THREE.BoxGeometry(2,2,2);
+        var boxMaterial = new THREE.MeshPhongMaterial({color: 0xFFFFFF, map: textureLoader.load("https://pipetrainingcamp.github.io/logo.jpg")});
+        var box = new THREE.Mesh(boxGeometry, boxMaterial);
+        box.position.set(0,0,0);
+        box.castShadow = true;
+        scene.add(box);
+
+        var cubeGeometry = new THREE.BoxGeometry(1,1,1);
+        var cubeMaterial = new THREE.MeshPhongMaterial({color:0xFFFFFF});
+        var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.set(0, -0.5, -5);
+        cube.castShadow = true;
+        scene.add(cube)
+        */
+
+        camera.position.set(0, 0, 7);
+        camera.lookAt(scene.position);
+
+        var speed = 0.1;
+        var state = {
+            forward: false,
+            backward: false,
+            left: false,
+            right: false
+        }
+
+
+
+        window.addEventListener("keydown", (event) => {
+            switch (event.key.toLowerCase()) {
+                case 'w':
+                    state.forward = true;
+                    break;
+                case 'a':
+                    state.left = true;
+                    break;
+                case 's':
+                    state.backward= true;
+                    break;
+                case 'd':
+                    state.right = true;
+                    break;
+            }
+        });
+
+
+        window.addEventListener("keyup", (event) => {
+            switch (event.key.toLowerCase()) {
+                case 'w':
+                    state.forward = false;
+                    break;
+                case 'a':
+                    state.left = false;
+                    break;
+                case 's':
+                    state.backward= false;
+                    break;
+                case 'd':
+                    state.right = false;
+                    break;
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            /*
+            if (state.forward) {
+                box.position.z -= speed;
+            }
+            if (state.backward) {
+                box.position.z += speed;
+            }
+            if (state.left) {
+                box.position.x -= speed;
+            }
+            if (state.right) {
+                box.position.x += speed;
+            }
+            */
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        $("#webgl").append(renderer.domElement)
+
+        window.addEventListener("resize", function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight)
+        });
+    </script>
+</body>
+</html>
